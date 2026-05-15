@@ -1,10 +1,12 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Inject } from '@angular/core';
 import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpResponse } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { environment } from '../../../environments/environment';
+import { APP_CONFIG, AppConfig } from '../services/app-config.service';
 
 @Injectable()
 export class MockApiInterceptor implements HttpInterceptor {
+
+  constructor(@Inject(APP_CONFIG) private config: AppConfig) {}
 
   private mockAuth = {
     id: 1, loginname: 'ekran', extloginname: '', access: 'full', accessmenu: true,
@@ -30,7 +32,7 @@ export class MockApiInterceptor implements HttpInterceptor {
   ];
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    if (!environment.isMockEnabled) {
+    if (!this.config.isMockEnabled) {
       return next.handle(req);
     }
 

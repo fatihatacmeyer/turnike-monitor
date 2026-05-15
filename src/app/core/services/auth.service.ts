@@ -1,15 +1,14 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Inject } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Router } from '@angular/router';
 import { AuthHttpService } from './auth-http.service';
 import { HelperService } from './helper.service';
-import { environment } from '../../../environments/environment';
+import { APP_CONFIG, AppConfig } from './app-config.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private authLocalStorageToken = `${environment.appVersion}-${environment.USERDATA_KEY}`;
   private currentUserSubject: BehaviorSubject<any>;
 
   get currentUserValue(): any {
@@ -19,7 +18,8 @@ export class AuthService {
   constructor(
     private authHttpService: AuthHttpService,
     private router: Router,
-    private helper: HelperService
+    private helper: HelperService,
+    @Inject(APP_CONFIG) private config: AppConfig
   ) {
     const storedUser = this.getAuthFromLocalStorage();
     this.currentUserSubject = new BehaviorSubject<any>(storedUser);
@@ -52,18 +52,21 @@ export class AuthService {
   }
 
   logout() {
-    localStorage.removeItem(this.authLocalStorageToken);
+    const authLocalStorageToken = `${this.config.appVersion}-${this.config.USERDATA_KEY}`;
+    localStorage.removeItem(authLocalStorageToken);
     this.currentUserSubject.next(null);
     this.router.navigate(['/login']);
   }
 
   private setAuthToLocalStorage(auth: any) {
-    localStorage.setItem(this.authLocalStorageToken, JSON.stringify(auth));
+    const authLocalStorageToken = `${this.config.appVersion}-${this.config.USERDATA_KEY}`;
+    localStorage.setItem(authLocalStorageToken, JSON.stringify(auth));
   }
 
   private getAuthFromLocalStorage(): any {
     try {
-      const lsValue = localStorage.getItem(this.authLocalStorageToken);
+      const authLocalStorageToken = `${this.config.appVersion}-${this.config.USERDATA_KEY}`;
+      const lsValue = localStorage.getItem(authLocalStorageToken);
       if (!lsValue) return null;
       return JSON.parse(lsValue);
     } catch (error) {
