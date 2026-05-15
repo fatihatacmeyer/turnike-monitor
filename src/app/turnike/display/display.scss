@@ -1,13 +1,4 @@
-$bg-body: #f0f2f5;
-$bg-card: #ffffff;
-$bg-terminal-bar: #ffffff;
-$bg-avatar: linear-gradient(135deg, #4a90d9, #357abd);
-$text-primary: #333333;
-$text-secondary: #666666;
-$text-muted: #999999;
-$text-accent: #4a90d9;
-$border-color: #e0e0e0;
-$shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+@import 'variables';
 
 .turnike-container {
   height: 100vh;
