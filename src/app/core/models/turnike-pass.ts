@@ -1,0 +1,12 @@
+export interface TurnikePass {
+  Mesaj?: string;
+  SicilNo?: string;
+  AdSoyad?: string;
+  FirmaAdi?: string;
+  BolumAdi?: string;
+  Pozisyon?: string;
+  GecisZamani?: string;
+  TerminalAdi?: string;
+  FotoImage?: string;
+  [key: string]: any;
+}
