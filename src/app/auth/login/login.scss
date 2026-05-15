@@ -1,35 +1,47 @@
+@import 'variables';
+
 .login-container {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: #f0f2f5;
+  background: $bg-body;
   padding: 20px;
 }
 
 .login-card {
-  background: #ffffff;
+  background: $bg-card;
   border-radius: 12px;
   padding: 40px;
   width: 100%;
   max-width: 420px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: $shadow-card;
 }
 
 .login-header {
   text-align: center;
   margin-bottom: 30px;
 
+  img {
+    width: 56px;
+    height: 56px;
+    object-fit: contain;
+    margin-bottom: 16px;
+  }
+
   h1 {
-    color: #333333;
-    font-size: 24px;
-    font-weight: 600;
-    margin-bottom: 8px;
+    color: $text-primary;
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    letter-spacing: -0.3px;
   }
 
   p {
-    color: #666666;
+    color: $text-secondary;
     font-size: 14px;
+    line-height: 1.5;
+    margin: 0;
   }
 }
 
@@ -60,17 +72,17 @@
   .form-control {
     width: 100%;
     padding: 12px 16px;
-    background: #ffffff;
-    border: 1px solid #d0d0d0;
+    background: $bg-card;
+    border: 1px solid $border-light;
     border-radius: 8px;
-    color: #333333;
+    color: $text-primary;
     font-size: 14px;
     transition: border-color 0.2s;
     box-sizing: border-box;
 
     &:focus {
       outline: none;
-      border-color: #4a90d9;
+      border-color: $text-accent;
     }
 
     &.is-invalid {
@@ -99,7 +111,7 @@
   }
 
   .btn-primary {
-    background: #4a90d9;
+    background: $text-accent;
     color: white;
 
     &:hover:not(:disabled) {
