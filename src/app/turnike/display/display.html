@@ -1,33 +1,50 @@
 <div class="turnike-container" [class.is-empty]="data.length === 0">
-  <div class="terminal-info" *ngIf="data.length > 0">
-    <span class="terminal-name">{{ helper.selectedTerminalAd }}</span>
-    <span class="person-count">{{ data.length }} kişi</span>
-  </div>
-
-  <div class="turnike-grid" [class]="getGridClass()" *ngIf="data.length > 0">
-    <div class="person-card" *ngFor="let person of displayData; let i = index">
-      <div class="person-photo">
-        <img *ngIf="person.FotoImage" [src]="person.FotoImage.startsWith('http') ? person.FotoImage : 'data:image/jpg;base64,' + person.FotoImage" class="photo-img">
-        <div *ngIf="!person.FotoImage" class="photo-placeholder">
-          <svg viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-          </svg>
-        </div>
-      </div>
-      <div class="person-info" [class.full-detail]="gridCount <= 6">
-        <div class="person-message" *ngIf="gridCount <= 6">{{ (person.Mesaj === 'OK' || !person.Mesaj) ? 'Giriş Başarılı' : person.Mesaj }}</div>
-        <div class="person-name">{{ person.AdSoyad || 'Bilinmiyor' }}</div>
-        <div class="person-sicil" *ngIf="gridCount <= 6">{{ person.SicilNo }}</div>
-        <div class="person-dept">{{ person.BolumAdi || person.Departman || '' }}</div>
-        <div class="person-firma" *ngIf="gridCount <= 6">{{ person.FirmaAdi }}</div>
-        <div class="person-position" *ngIf="gridCount <= 6">{{ person.Pozisyon || '' }}</div>
-        <div class="person-time">{{ person.GecisZamani | date: (gridCount <= 2 ? 'dd.MM.yyyy - HH:mm:ss' : 'HH:mm:ss') }}</div>
-        <div class="person-terminal" *ngIf="gridCount <= 6">{{ person.TerminalAdi }}</div>
-      </div>
+  @if (data.length > 0) {
+    <div class="terminal-info">
+      <span class="terminal-name">{{ helper.selectedTerminalAd }}</span>
+      <span class="person-count">{{ data.length }} kişi</span>
     </div>
-  </div>
 
-  <div class="empty-state" *ngIf="data.length === 0">
-    <img src="assets/media/logos/Trendyolda1280x749.png" class="empty-img" alt="Logo">
-  </div>
+    <div class="turnike-grid" [class]="getGridClass()">
+      @for (person of displayData; track $index) {
+        <div class="person-card">
+          <div class="person-photo">
+            @if (person.FotoImage) {
+              <img [src]="person.FotoImage.startsWith('http') ? person.FotoImage : 'data:image/jpg;base64,' + person.FotoImage" class="photo-img">
+            } @else {
+              <div class="photo-placeholder">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                </svg>
+              </div>
+            }
+          </div>
+          <div class="person-info" [class.full-detail]="gridCount <= 6">
+            @if (gridCount <= 6) {
+              <div class="person-message">{{ (person.Mesaj === 'OK' || !person.Mesaj) ? 'Giriş Başarılı' : person.Mesaj }}</div>
+            }
+            <div class="person-name">{{ person.AdSoyad || 'Bilinmiyor' }}</div>
+            @if (gridCount <= 6) {
+              <div class="person-sicil">{{ person.SicilNo }}</div>
+            }
+            <div class="person-dept">{{ person.BolumAdi || person.Departman || '' }}</div>
+            @if (gridCount <= 6) {
+              <div class="person-firma">{{ person.FirmaAdi }}</div>
+            }
+            @if (gridCount <= 6) {
+              <div class="person-position">{{ person.Pozisyon || '' }}</div>
+            }
+            <div class="person-time">{{ person.GecisZamani | date: (gridCount <= 2 ? 'dd.MM.yyyy - HH:mm:ss' : 'HH:mm:ss') }}</div>
+            @if (gridCount <= 6) {
+              <div class="person-terminal">{{ person.TerminalAdi }}</div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="empty-state">
+      <img src="assets/media/logos/Trendyolda1280x749.png" class="empty-img" alt="Logo">
+    </div>
+  }
 </div>

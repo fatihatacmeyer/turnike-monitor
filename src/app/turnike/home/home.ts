@@ -3,13 +3,12 @@ import { Router } from '@angular/router';
 import { HelperService } from '../../core/services/helper.service';
 import { TurnikeService } from '../../core/services/turnike.service';
 import { AuthService } from '../../core/services/auth.service';
-import { NgFor } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [NgFor, FormsModule],
+  imports: [FormsModule],
   templateUrl: './home.html',
   styleUrl: './home.scss'
 })
@@ -34,6 +33,7 @@ export class HomeComponent implements OnInit {
     this.turnikeService.getTerminal(this.helper.userLoginModel.tokenid).subscribe({
       next: (data) => {
         this.terminals = data;
+        this.selectedTerminal = data[0];
       },
       error: (err) => {
         console.error('Terminal yüklenirken hata:', err);

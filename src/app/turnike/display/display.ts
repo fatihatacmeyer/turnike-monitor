@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { NgFor, NgIf, DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { HelperService } from '../../core/services/helper.service';
 import { TurnikeService } from '../../core/services/turnike.service';
 
 @Component({
   selector: 'app-display',
   standalone: true,
-  imports: [NgFor, NgIf, DatePipe],
+  imports: [DatePipe],
   templateUrl: './display.html',
   styleUrl: './display.scss'
 })

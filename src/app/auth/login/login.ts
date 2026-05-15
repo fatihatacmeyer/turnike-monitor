@@ -4,12 +4,11 @@ import { Subscription } from 'rxjs';
 import { first } from 'rxjs/operators';
 import { AuthService } from '../../core/services/auth.service';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterModule, NgIf],
+  imports: [ReactiveFormsModule, RouterModule],
   templateUrl: './login.html',
   styleUrl: './login.scss'
 })

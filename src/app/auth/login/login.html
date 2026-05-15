@@ -6,9 +6,11 @@
       <p>Giriş yapmak için kullanıcı adı ve şifrenizi girin</p>
     </div>
 
-    <div class="login-alert" *ngIf="hasError">
-      Kullanıcı adı veya şifre hatalı. Lütfen tekrar deneyin.
-    </div>
+    @if (hasError) {
+      <div class="login-alert">
+        Kullanıcı adı veya şifre hatalı. Lütfen tekrar deneyin.
+      </div>
+    }
 
     <form [formGroup]="loginForm" (ngSubmit)="submit()" class="login-form">
       <div class="form-group">

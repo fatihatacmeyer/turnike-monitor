@@ -12,14 +12,18 @@
       <div class="form-group">
         <label>Turnike Sayısı</label>
         <select class="form-control" [(ngModel)]="selectedGrid">
-          <option *ngFor="let item of gridCount" [value]="item.id">{{ item.id }}</option>
+          @for (item of gridCount; track item.id) {
+            <option [value]="item.id">{{ item.id }}</option>
+          }
         </select>
       </div>
 
       <div class="form-group">
         <label>Cihaz Seçimi <span class="required">*</span></label>
         <select class="form-control" [(ngModel)]="selectedTerminal">
-          <option *ngFor="let term of terminals" [ngValue]="term">{{ term.Ad }}</option>
+          @for (term of terminals; track term) {
+            <option [ngValue]="term">{{ term.Ad }}</option>
+          }
         </select>
       </div>
 
