@@ -1,6 +1,7 @@
 import { Injectable, Inject } from '@angular/core';
 import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpResponse } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
+import { delay } from 'rxjs/operators';
 import { APP_CONFIG, AppConfig } from '../services/app-config.service';
 
 @Injectable()
@@ -22,13 +23,13 @@ export class MockApiInterceptor implements HttpInterceptor {
     { Id: 4, Ad: 'Terminal-4 (Ziyaretçi)' }
   ];
 
-  private personelNames = [
-    { AdSoyad: 'Ahmet Yılmaz', Departman: 'IT', Pozisyon: 'Yazılım Geliştirici' },
-    { AdSoyad: 'Ayşe Demir', Departman: 'İK', Pozisyon: 'İnsan Kaynakları Uzmanı' },
-    { AdSoyad: 'Mehmet Kaya', Departman: 'Muhasebe', Pozisyon: 'Muhasebe Müdürü' },
-    { AdSoyad: 'Fatma Şahin', Departman: 'Satış', Pozisyon: 'Satış Temsilcisi' },
-    { AdSoyad: 'Ali Öztürk', Departman: 'Lojistik', Pozisyon: 'Depo Sorumlusu' },
-    { AdSoyad: 'Zeynep Çelik', Departman: 'Pazarlama', Pozisyon: 'Pazarlama Uzmanı' }
+  private staffList = [
+    { fullName: 'Ahmet Yılmaz', department: 'IT', position: 'Yazılım Geliştirici' },
+    { fullName: 'Ayşe Demir', department: 'İK', position: 'İnsan Kaynakları Uzmanı' },
+    { fullName: 'Mehmet Kaya', department: 'Muhasebe', position: 'Muhasebe Müdürü' },
+    { fullName: 'Fatma Şahin', department: 'Satış', position: 'Satış Temsilcisi' },
+    { fullName: 'Ali Öztürk', department: 'Lojistik', position: 'Depo Sorumlusu' },
+    { fullName: 'Zeynep Çelik', department: 'Pazarlama', position: 'Pazarlama Uzmanı' }
   ];
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
@@ -36,69 +37,73 @@ export class MockApiInterceptor implements HttpInterceptor {
       return next.handle(req);
     }
 
-    // Mock MonitorLogin endpoint
-    if (req.url.includes('MonitorLogin') || req.url.includes('monitorlogin')) {
-      console.log('[Mock] Login:', req.url);
+    // URL karakterlerinin bozulma ihtimaline karşı decode işlemi
+    const requestUrl = decodeURIComponent(req.urlWithParams).toLowerCase();
+
+    if (requestUrl.includes('/login') || requestUrl.includes('monitorlogin')) {
+      console.log('[Mock] Login:', requestUrl);
       return of(new HttpResponse({
         status: 200,
         body: [this.mockAuth]
-      }));
+      })).pipe(delay(200));
     }
 
-    // Mock Dynamic endpoint (terminal listing + turnike data)
-    if (req.url.includes('Dynamic') || req.url.includes('dynamic')) {
-      console.log('[Mock] Dynamic:', req.url);
+    if (requestUrl.includes('dynamic')) {
+      console.log('[Mock] Dynamic:', requestUrl);
 
-      const name = req.params.get('Name') || '';
-
-      // Terminal listesi (islemtipi=tl)
-      if (name.toLowerCase().includes('islemtipi=tl')) {
+      if (requestUrl.includes('islemtipi=t')) {
         console.log('[Mock] Returning terminals:', this.mockTerminals);
         return of(new HttpResponse({
           status: 200,
           body: this.mockTerminals
-        }));
+        })).pipe(delay(200));
       }
 
-      // Turnike geçiş verisi (islemtipi=pp)
-      if (name.toLowerCase().includes('islemtipi=pp')) {
+      if (requestUrl.includes('islemtipi=p')) {
         const mockData = this.generateTurnikeData();
         console.log('[Mock] Returning turnike data:', mockData);
+        // Gerçek ağ gecikmesini simüle etmek ve Angular'ın veriyi ekrana basmasını sağlamak için delay(200) eklendi
         return of(new HttpResponse({
           status: 200,
           body: mockData
-        }));
+        })).pipe(delay(200));
       }
 
-      // Bilinmeyen Dynamic isteği - yine de boş veri döndür
-      console.log('[Mock] Unknown Dynamic request, returning empty:', name);
+      console.log('[Mock] Unknown Dynamic request, returning empty:', requestUrl);
       return of(new HttpResponse({
         status: 200,
         body: []
-      }));
+      })).pipe(delay(200));
     }
 
-    // Mock modunda eşleşmeyen istekler boş array dönsün (gerçek API'ye düşmesin)
-    console.log('[Mock] Unmatched request, returning empty:', req.url);
+    console.log('[Mock] Unmatched request, returning empty:', requestUrl);
     return of(new HttpResponse({
       status: 200,
       body: []
-    }));
+    })).pipe(delay(200));
   }
 
   private generateTurnikeData(): any[] {
-    const times = ['09:00:00', '09:01:00', '09:02:00', '09:03:00', '09:04:00', '09:05:00'];
-    const today = new Date().toISOString().split('T')[0];
-    return this.personelNames.map((person, i) => ({
-      Mesaj: 'OK',
-      SicilNo: `${1001 + i}`,
-      AdSoyad: person.AdSoyad,
-      FirmaAdi: 'Demo Şirket',
-      BolumAdi: person.Departman,
-      Pozisyon: person.Pozisyon,
-      GecisZamani: `${today}T${times[i]}`,
-      TerminalAdi: `Terminal ${i + 1}`,
-      FotoImage: ''
-    }));
+    const currentDate = new Date();
+    const todayString = currentDate.toISOString().split('T')[0];
+    
+    return this.staffList.map((person, index) => {
+      const offsetMilliseconds = (60 - index * 10) * 60 * 1000 + Math.floor(Math.random() * 120 * 1000);
+      const timestamp = new Date(currentDate.getTime() - offsetMilliseconds);
+      const timeString = timestamp.toTimeString().split(' ')[0];
+      
+      return {
+        Mesaj: 'OK',
+        SicilNo: `${1001 + index}`,
+        AdSoyad: person.fullName,
+        FirmaAdi: 'Demo Şirket',
+        BolumAdi: person.department,
+        Pozisyon: person.position,
+        GecisZamani: `${todayString}T${timeString}`,
+        TerminalAdi: `Terminal ${index + 1}`,
+        Gecis: Math.random() > 0.3 ? 1 : 2,
+        FotoImage: ''
+      };
+    });
   }
 }

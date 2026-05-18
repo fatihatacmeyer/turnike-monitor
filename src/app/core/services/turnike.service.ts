@@ -1,6 +1,7 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable, Inject } from '@angular/core';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { APP_CONFIG, AppConfig } from './app-config.service';
 
 @Injectable({
@@ -14,18 +15,34 @@ export class TurnikeService {
   ) {}
 
   getTurnike(token: string, terminalId: number): Observable<any> {
-    const apiDynamic = `${this.config.apiUrl}/Dynamic`;
-    const params = {
-      Name: `tokenid=${token}&point=lastpass&islemtipi=pp&terminalgrubu=${terminalId}`
-    };
-    return this.http.get<any>(apiDynamic, { params });
+    const apiUrl = `${this.config.apiUrl}/Dynamic`;
+    
+    // Eski lastpass uygulamasındaki raw string formatı birebir aynı
+    const nameParam = `islemtipi=p&tokenid=${token}&tarihbas=&tarihbit=&sicilno=&bolum#cbo_bolum=&point=lastpass&terminalid=${terminalId}`;
+    
+    // HttpParams kullanarak Angular'ın stringi URL-Encode yapmasını (eski sistem gibi) sağlıyoruz
+    const params = new HttpParams().set('Name', nameParam);
+    const headers = new HttpHeaders().set('Accept', 'application/json');
+    
+    return this.http.get<any>(apiUrl, { headers, params });
   }
 
   getTerminal(token: string): Observable<any> {
-    const apiDynamic = `${this.config.apiUrl}/Dynamic`;
-    const params = {
-      Name: `tokenid=${token}&point=lastpass&islemtipi=tl`
-    };
-    return this.http.get<any>(apiDynamic, { params });
+    const apiUrl = `${this.config.apiUrl}/Dynamic`;
+    const nameParam = `islemtipi=t&tokenid=${token}&tarihbas=&tarihbit=&sicilno=&bolum#cbo_bolum=&point=lastpass`;
+    
+    const params = new HttpParams().set('Name', nameParam);
+    const headers = new HttpHeaders().set('Accept', 'application/json');
+    
+    return this.http.get<any>(apiUrl, { headers, params }).pipe(
+      map((response: any[]) => {
+        const data = Array.isArray(response) ? response : [];
+        return data.map(item => ({
+          Id: item.TerminalID ?? item.Id,
+          Ad: item.TerminalAdi ?? item.Ad,
+          ...item
+        }));
+      })
+    );
   }
 }

@@ -3,6 +3,7 @@ export interface TurnikePass {
   SicilNo?: string;
   AdSoyad?: string;
   FirmaAdi?: string;
+  Gecis?: number;
   BolumAdi?: string;
   Pozisyon?: string;
   GecisZamani?: string;

@@ -1,7 +1,8 @@
 import { Injectable, Inject } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http'; // HttpParams eklendi
 import { BehaviorSubject, Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { Router } from '@angular/router';
-import { AuthHttpService } from './auth-http.service';
 import { HelperService } from './helper.service';
 import { APP_CONFIG, AppConfig } from './app-config.service';
 
@@ -16,12 +17,21 @@ export class AuthService {
   }
 
   constructor(
-    private authHttpService: AuthHttpService,
+    private http: HttpClient,
     private router: Router,
     private helper: HelperService,
     @Inject(APP_CONFIG) private config: AppConfig
   ) {
-    const storedUser = this.getAuthFromLocalStorage();
+    let storedUser = this.getAuthFromLocalStorage();
+    if (!storedUser && !this.config.isAuthEnabled) {
+      storedUser = {
+        id: 1, loginname: 'ekran', extloginname: '', access: 'full', accessmenu: true,
+        admin: false, bolum: 1, customerName: 'Bypass Kullanıcı', customerCode: 'BYPASS',
+        islemno: '1', kademe: 1, xsicilid: 1, tokenid: 'bypass-token',
+        yetki: 1, gorev: 1, terminalgrubu: 0, terminalgroup: 0, islemsonuc: 1
+      };
+      this.setAuthToLocalStorage(storedUser);
+    }
     this.currentUserSubject = new BehaviorSubject<any>(storedUser);
     if (storedUser) {
         this.helper.userLoginModel = storedUser;
@@ -29,26 +39,25 @@ export class AuthService {
   }
 
   login(email: string, password: string): Observable<any> {
-    return new Observable(observer => {
-      this.authHttpService.login(email, password).subscribe({
-        next: (auth: any) => {
-          const user = auth[0];
-          if (user) {
-            this.setAuthToLocalStorage(user);
-            this.helper.userLoginModel = user;
-            this.currentUserSubject.next(user);
-            observer.next(this.currentUserSubject);
-          } else {
-            observer.error('Login failed');
-          }
-          observer.complete();
-        },
-        error: (err) => {
-          observer.error(err);
-          observer.complete();
+    const apiUrl = `${this.config.apiUrl}/Login`;
+    const nameParam = `LoginName=${email}&Password=${password}&ldap=0`;
+    
+    // API sunucusunun çökmemesi için parametreler HttpParams ile encode edilerek gönderilir
+    const params = new HttpParams().set('Name', nameParam);
+
+    return this.http.get<any>(apiUrl, { params }).pipe(
+      map(response => {
+        const user = Array.isArray(response) ? response[0] : response;
+        if (user?.islemsonuc == "1") {
+          this.setAuthToLocalStorage(user);
+          this.helper.userLoginModel = user;
+          this.currentUserSubject.next(user);
+          return user;
+        } else {
+          throw new Error('Kullanıcı adı veya şifre hatalı');
         }
-      });
-    });
+      })
+    );
   }
 
   logout() {

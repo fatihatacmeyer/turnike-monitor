@@ -106,11 +106,19 @@
   }
 
   .person-message {
-    background-color: #008000;
     color: white;
     padding: 5px 10px;
     text-align: center;
     margin-bottom: 1vh;
+    background-color: #008000;
+  }
+
+  .person-message-success {
+    background-color: #008000;
+  }
+
+  .person-message-error {
+    background-color: #DC3545;
   }
 
   .person-name { font-size: 2.5vw; color: $text-primary; }
@@ -249,16 +257,23 @@
   }
 }
 .empty-state {
-  flex: 1;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
-  width: 100vw;
+  align-items: center;
   height: 100vh;
+  width: 100vw;
+  background: white;
 
-  .empty-img {
-    max-width: 95%;
-    max-height: 95%;
-    object-fit: contain;
+  .empty-text {
+    font-size: 24px;
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .empty-subtext {
+    font-size: 16px;
+    color: #888;
   }
 }

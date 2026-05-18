@@ -1,0 +1,8 @@
+{
+  "/Api/*": {
+    "target": "http://172.23.34.39:8080",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  }
+}

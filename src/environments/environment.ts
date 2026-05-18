@@ -3,5 +3,6 @@ export const environment = {
   appVersion: 'v1-turnike-monitor',
   USERDATA_KEY: 'authf649fc9a5f55',
   isMockEnabled: false,
-  apiUrl: 'http://172.16.2.11:8080/api/',
+  isAuthEnabled: true,
+  apiUrl: 'http://172.23.34.39:8080/Api',
 };

@@ -21,7 +21,7 @@
           </div>
           <div class="person-info" [class.full-detail]="gridCount <= 6">
             @if (gridCount <= 6) {
-              <div class="person-message">{{ (person.Mesaj === 'OK' || !person.Mesaj) ? 'Giriş Başarılı' : person.Mesaj }}</div>
+              <div class="person-message" [class.person-message-success]="person.Gecis == 1" [class.person-message-error]="person.Gecis == 2">{{ (person.Mesaj === 'OK' || !person.Mesaj) ? 'Giriş Başarılı' : person.Mesaj }}</div>
             }
             <div class="person-name">{{ person.AdSoyad || 'Bilinmiyor' }}</div>
             @if (gridCount <= 6) {
@@ -44,7 +44,8 @@
     </div>
   } @else {
     <div class="empty-state">
-      <img src="assets/media/logos/Trendyolda1280x749.png" class="empty-img" alt="Logo">
+      <p class="empty-text">Terminal seçildi, veri bekleniyor...</p>
+      <p class="empty-subtext">Turnike ekranı yükleniyor</p>
     </div>
   }
 </div>

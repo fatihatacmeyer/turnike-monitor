@@ -5,6 +5,7 @@ export interface AppConfig {
   appVersion: string;
   USERDATA_KEY: string;
   isMockEnabled: boolean;
+  isAuthEnabled: boolean;
   apiUrl: string;
 }
 
