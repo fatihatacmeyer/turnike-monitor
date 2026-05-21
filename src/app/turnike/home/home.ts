@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { HelperService } from '../../core/services/helper.service';
 import { TurnikeService } from '../../core/services/turnike.service';
@@ -22,7 +22,8 @@ export class HomeComponent implements OnInit {
     private authService: AuthService,
     private router: Router,
     public helper: HelperService,
-    private turnikeService: TurnikeService
+    private turnikeService: TurnikeService,
+    private changeDetector: ChangeDetectorRef // Ekranı anında güncellemek için eklendi
   ) {}
 
   ngOnInit(): void {
@@ -30,13 +31,27 @@ export class HomeComponent implements OnInit {
   }
 
   loadTerminals() {
-    this.turnikeService.getTerminal(this.helper.userLoginModel.tokenid).subscribe({
-      next: (data) => {
-        this.terminals = data;
-        this.selectedTerminal = data[0];
+    const userToken = this.helper.userLoginModel?.tokenid;
+    
+    // Güvenlik: Eğer token uçtuysa direkt login'e at
+    if (!userToken) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    this.turnikeService.getTerminal(userToken).subscribe({
+      next: (apiResponse) => {
+        this.terminals = Array.isArray(apiResponse) ? apiResponse : [];
+        
+        if (this.terminals.length > 0) {
+          this.selectedTerminal = this.terminals[0];
+        }
+
+        // ÇÖZÜM: Angular'a verinin geldiğini ve arayüzü anında çizmesi gerektiğini bildiriyoruz.
+        this.changeDetector.detectChanges();
       },
-      error: (err) => {
-        console.error('Terminal yüklenirken hata:', err);
+      error: (error) => {
+        console.error('Terminal yüklenirken hata:', error);
       }
     });
   }
@@ -45,10 +60,13 @@ export class HomeComponent implements OnInit {
     if (!this.selectedTerminal) {
       return;
     }
+    
     this.helper.selectedGridCount = this.selectedGrid;
-    this.helper.selectedTerminalId = this.selectedTerminal.Id;
-    this.helper.selectedTerminalAd = this.selectedTerminal.Ad;
+    // Farklı API versiyonlarında Id veya TerminalID dönebilir, ikisini de yakalıyoruz
+    this.helper.selectedTerminalId = this.selectedTerminal.Id || this.selectedTerminal.TerminalID;
+    this.helper.selectedTerminalAd = this.selectedTerminal.Ad || this.selectedTerminal.TerminalAdi;
     this.helper.selectedTerminal = this.selectedTerminal;
+    
     this.router.navigate(['/turnike']);
   }
 

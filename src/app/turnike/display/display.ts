@@ -22,7 +22,7 @@ export class DisplayComponent implements OnInit, OnDestroy {
     public helper: HelperService,
     private turnikeService: TurnikeService,
     private router: Router,
-    private changeDetector: ChangeDetectorRef // Ekranı güncel tutmak için eklendi
+    private changeDetector: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -36,7 +36,7 @@ export class DisplayComponent implements OnInit, OnDestroy {
   }
 
   private startPolling(): void {
-    this.pollingSubscription = timer(0, 1000).pipe(
+    this.pollingSubscription = timer(0, 2000).pipe(
       switchMap(() => {
         const userToken = this.helper.userLoginModel?.tokenid;
         const activeTerminalId = this.helper.selectedTerminalId;
@@ -56,17 +56,43 @@ export class DisplayComponent implements OnInit, OnDestroy {
       })
     ).subscribe((apiResponse) => {
       
-      if (Array.isArray(apiResponse)) {
-        this.data = apiResponse.map((personRecord, personIndex) => ({
+      if (Array.isArray(apiResponse) && apiResponse.length > 0) {
+        
+        // 1. Yeni gelen verileri formatla
+        const incomingData = apiResponse.map((personRecord, personIndex) => ({
           ...personRecord,
           FotoImage: personRecord.FotoImage || `https://i.pravatar.cc/500?u=${personRecord.SicilNo || personIndex}`
         }));
-      } else {
-        this.data = [];
-      }
 
-      // KESİN ÇÖZÜM: Angular'a verinin değiştiğini bildir ve HTML'i anında yeniden çizdir
-      this.changeDetector.detectChanges();
+        // 2. Yeni gelenlerle eski verileri birleştir (Hafıza Mekanizması)
+        const combinedData = [...incomingData, ...this.data];
+
+        // 3. Mükerrer kayıtları (aynı kişinin aynı saniyedeki geçişini) temizle
+        const uniqueData: any[] = [];
+        const seenKeys = new Set();
+
+        for (const item of combinedData) {
+          // Bir kaydı benzersiz yapan şey Sicil Numarası ve Geçiş Zamanıdır
+          const uniqueKey = `${item.SicilNo}_${item.GecisZamani}`;
+          if (!seenKeys.has(uniqueKey)) {
+            seenKeys.add(uniqueKey);
+            uniqueData.push(item);
+          }
+        }
+
+        // 4. Yeniden eskiye doğru sırala (En yeni geçiş en üstte olacak)
+        uniqueData.sort((a, b) => {
+          const timeA = new Date(a.GecisZamani).getTime();
+          const timeB = new Date(b.GecisZamani).getTime();
+          return timeB - timeA; // B'den A'yı çıkararak descending (azalan) sıralama yapıyoruz
+        });
+
+        // 5. Her zaman maksimum son 6 kişiyi hafızada tut
+        this.data = uniqueData.slice(0, 6);
+
+        // Ekranı güncelle
+        this.changeDetector.detectChanges();
+      }
     });
   }
 
@@ -75,12 +101,9 @@ export class DisplayComponent implements OnInit, OnDestroy {
   }
 
   get displayData(): any[] {
-    const sortedData = [...this.data].sort((a, b) => {
-      const timeA = new Date(a.GecisZamani).getTime();
-      const timeB = new Date(b.GecisZamani).getTime();
-      return timeB - timeA;
-    });
-    return sortedData.slice(0, this.gridCount);
+    // Hafızadaki max 6 kişilik listeden, kullanıcının ekranda seçtiği kadarını kesip gösterir.
+    // Eğer gridCount 1 ise sadece en yeni 1 kişiyi, 6 ise hepsini gösterir.
+    return this.data.slice(0, this.gridCount);
   }
 
   getGridClass(): string {
