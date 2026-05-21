@@ -13,7 +13,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
   styleUrl: './login.scss'
 })
 export class LoginComponent implements OnInit, OnDestroy {
-  defaultAuth: any = { email: 'ekran', password: '123456' };
+  defaultAuth: any = { email: '', password: '' };
   loginForm!: FormGroup;
   hasError: boolean = false;
   returnUrl: string = '/';
