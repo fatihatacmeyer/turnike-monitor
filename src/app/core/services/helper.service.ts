@@ -16,6 +16,7 @@ export class HelperService {
   selectedTerminalId: any = null;
   selectedTerminalAd: string = '';
   selectedTerminal: any = null;
+  selectedTerminals: any[] = [];
 
   requestModel: any = {
     grupadi: '', grupid: null, terminaladi: '', terminalid: null,

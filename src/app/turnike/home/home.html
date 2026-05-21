@@ -11,26 +11,28 @@
     <div class="selection-card">
       <div class="form-group">
         <label>Turnike Sayısı</label>
-        <select class="form-control" [(ngModel)]="selectedGrid">
+        <select class="form-control" [(ngModel)]="selectedGrid" (ngModelChange)="onGridChange()">
           @for (item of gridCount; track item.id) {
             <option [value]="item.id">{{ item.id }}</option>
           }
         </select>
       </div>
 
-      <div class="form-group">
-        <label>Cihaz Seçimi <span class="required">*</span></label>
-        <select class="form-control" [(ngModel)]="selectedTerminal">
-          @for (term of terminals; track term) {
-            <option [ngValue]="term">{{ term.Ad }}</option>
-          }
-        </select>
-      </div>
+      @for (idx of getGridIndices(); track idx) {
+        <div class="form-group">
+          <label>Cihaz {{ idx + 1 }} Seçimi <span class="required">*</span></label>
+          <select class="form-control" [(ngModel)]="selectedTerminals[idx]">
+            @for (term of terminals; track term) {
+              <option [ngValue]="term">{{ term.Ad }}</option>
+            }
+          </select>
+        </div>
+      }
 
       <button
         (click)="goToTurnike()"
         class="btn btn-primary btn-block"
-        [disabled]="!selectedTerminal"
+        [disabled]="selectedTerminals.includes(null)"
       >
         TURNİKE EKRANI
       </button>

@@ -1,13 +1,12 @@
-<div class="turnike-container" [class.is-empty]="data.length === 0">
-  @if (data.length > 0) {
-    <div class="terminal-info">
-      <span class="terminal-name">{{ helper.selectedTerminalAd }}</span>
-      <span class="person-count">{{ data.length }} kişi</span>
-    </div>
+<div class="turnike-container">
+  <div class="terminal-info">
+    <span class="terminal-name">Turnike İzleme Paneli ({{ gridCount }} Cihaz)</span>
+  </div>
 
-    <div class="turnike-grid" [class]="getGridClass()">
-      @for (person of displayData; track $index) {
-        <div class="person-card">
+  <div class="turnike-grid" [class]="getGridClass()">
+    @for (person of displayData; track $index) {
+      <div class="person-card">
+        @if (person) {
           <div class="person-photo">
             @if (person.FotoImage) {
               <img [src]="person.FotoImage.startsWith('http') ? person.FotoImage : 'data:image/jpg;base64,' + person.FotoImage" class="photo-img">
@@ -20,32 +19,32 @@
             }
           </div>
           <div class="person-info" [class.full-detail]="gridCount <= 6">
-            @if (gridCount <= 6) {
+            <!-- @if (gridCount <= 6) {
               <div class="person-message" [class.person-message-success]="person.Gecis == 1" [class.person-message-error]="person.Gecis == 2">{{ (person.Mesaj === 'OK' || !person.Mesaj) ? 'Giriş Başarılı' : person.Mesaj }}</div>
-            }
+            } -->
             <div class="person-name">{{ person.AdSoyad || 'Bilinmiyor' }}</div>
             @if (gridCount <= 6) {
               <div class="person-sicil">{{ person.SicilNo }}</div>
             }
-            <div class="person-dept">{{ person.BolumAdi || person.Departman || '' }}</div>
+            <!-- <div class="person-dept">{{ person.BolumAdi || person.Departman || '' }}</div> -->
             @if (gridCount <= 6) {
               <div class="person-firma">{{ person.FirmaAdi }}</div>
             }
-            @if (gridCount <= 6) {
+            <!-- @if (gridCount <= 6) {
               <div class="person-position">{{ person.Pozisyon || '' }}</div>
-            }
+            } -->
             <div class="person-time">{{ person.GecisZamani | date: (gridCount <= 2 ? 'dd.MM.yyyy - HH:mm:ss' : 'HH:mm:ss') }}</div>
             @if (gridCount <= 6) {
-              <div class="person-terminal">{{ person.TerminalAdi }}</div>
+              <div class="person-terminal">{{ person._TerminalName || person.TerminalAdi }}</div>
             }
           </div>
-        </div>
-      }
-    </div>
-  } @else {
-    <div class="empty-state">
-      <p class="empty-text">Terminal seçildi, veri bekleniyor...</p>
-      <p class="empty-subtext">Turnike ekranı yükleniyor</p>
-    </div>
-  }
+        } @else {
+          <div class="empty-state-card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; padding: 20px;">
+            <p class="empty-text" style="color: #ffffff; font-size: 1.2rem; margin-bottom: 8px; font-weight: 500;">{{ terminals[$index]?.Ad || terminals[$index]?.TerminalAdi }}</p>
+            <p class="empty-subtext" style="color: #94a3b8; font-size: 0.9rem;">Bekleniyor...</p>
+          </div>
+        }
+      </div>
+    }
+  </div>
 </div>

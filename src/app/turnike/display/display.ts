@@ -3,7 +3,7 @@ import { DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { HelperService } from '../../core/services/helper.service';
 import { TurnikeService } from '../../core/services/turnike.service';
-import { Subscription, timer, of } from 'rxjs';
+import { Subscription, timer, forkJoin, of } from 'rxjs';
 import { switchMap, catchError } from 'rxjs/operators';
 
 @Component({
@@ -14,9 +14,10 @@ import { switchMap, catchError } from 'rxjs/operators';
   styleUrl: './display.scss'
 })
 export class DisplayComponent implements OnInit, OnDestroy {
-  data: any[] = [];
+  displayData: any[] = [];
   gridCount: number = 1;
   private pollingSubscription: Subscription | null = null;
+  terminals: any[] = [];
 
   constructor(
     public helper: HelperService,
@@ -26,12 +27,17 @@ export class DisplayComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    if (!this.helper.selectedTerminalId) {
+    if (!this.helper.selectedTerminals || this.helper.selectedTerminals.length === 0) {
       this.router.navigate(['/home']);
       return;
     }
 
     this.gridCount = Number(this.helper.selectedGridCount) || 1;
+    this.terminals = this.helper.selectedTerminals;
+    
+    // Initialize displayData with empty records or nulls
+    this.displayData = Array(this.gridCount).fill(null);
+
     this.startPolling();
   }
 
@@ -39,71 +45,52 @@ export class DisplayComponent implements OnInit, OnDestroy {
     this.pollingSubscription = timer(0, 2000).pipe(
       switchMap(() => {
         const userToken = this.helper.userLoginModel?.tokenid;
-        const activeTerminalId = this.helper.selectedTerminalId;
         
-        if (!userToken || !activeTerminalId) return of([]);
-        
-        return this.turnikeService.getTurnike(userToken, activeTerminalId).pipe(
-          catchError(apiError => {
-            console.error('API Error:', apiError);
-            return of([]);
-          })
-        );
+        if (!userToken || this.terminals.length === 0) return of([]);
+
+        const requests = this.terminals.map(terminal => {
+            const terminalId = terminal.Id || terminal.TerminalID;
+            return this.turnikeService.getTurnike(userToken, terminalId).pipe(
+                catchError(apiError => {
+                    console.error(`API Error for terminal ${terminalId}:`, apiError);
+                    return of([]);
+                })
+            );
+        });
+
+        return forkJoin(requests);
       }),
       catchError(pollingError => {
         console.error('Polling Error:', pollingError);
         return of([]);
       })
-    ).subscribe((apiResponse) => {
+    ).subscribe((responses: any[]) => {
       
-      if (Array.isArray(apiResponse) && apiResponse.length > 0) {
-        
-        // 1. Yeni gelen verileri formatla
-        const incomingData = apiResponse.map((personRecord, personIndex) => ({
-          ...personRecord,
-          FotoImage: personRecord.FotoImage || `https://i.pravatar.cc/500?u=${personRecord.SicilNo || personIndex}`
-        }));
+      if (responses && responses.length > 0) {
+          responses.forEach((apiResponse, index) => {
+              if (Array.isArray(apiResponse) && apiResponse.length > 0) {
+                  const sortedData = [...apiResponse].sort((a, b) => {
+                    const timeA = new Date(a.GecisZamani).getTime();
+                    const timeB = new Date(b.GecisZamani).getTime();
+                    return timeB - timeA;
+                  });
+                  
+                  const latestRecord = sortedData[0];
+                  
+                  latestRecord.FotoImage = latestRecord.FotoImage || `https://i.pravatar.cc/500?u=${latestRecord.SicilNo || 'default'}`;
+                  latestRecord._TerminalName = this.terminals[index].Ad || this.terminals[index].TerminalAdi;
+                  
+                  this.displayData[index] = latestRecord;
+              }
+          });
 
-        // 2. Yeni gelenlerle eski verileri birleştir (Hafıza Mekanizması)
-        const combinedData = [...incomingData, ...this.data];
-
-        // 3. Mükerrer kayıtları (aynı kişinin aynı saniyedeki geçişini) temizle
-        const uniqueData: any[] = [];
-        const seenKeys = new Set();
-
-        for (const item of combinedData) {
-          // Bir kaydı benzersiz yapan şey Sicil Numarası ve Geçiş Zamanıdır
-          const uniqueKey = `${item.SicilNo}_${item.GecisZamani}`;
-          if (!seenKeys.has(uniqueKey)) {
-            seenKeys.add(uniqueKey);
-            uniqueData.push(item);
-          }
-        }
-
-        // 4. Yeniden eskiye doğru sırala (En yeni geçiş en üstte olacak)
-        uniqueData.sort((a, b) => {
-          const timeA = new Date(a.GecisZamani).getTime();
-          const timeB = new Date(b.GecisZamani).getTime();
-          return timeB - timeA; // B'den A'yı çıkararak descending (azalan) sıralama yapıyoruz
-        });
-
-        // 5. Her zaman maksimum son 6 kişiyi hafızada tut
-        this.data = uniqueData.slice(0, 6);
-
-        // Ekranı güncelle
-        this.changeDetector.detectChanges();
+          this.changeDetector.detectChanges();
       }
     });
   }
 
   ngOnDestroy(): void {
     this.pollingSubscription?.unsubscribe();
-  }
-
-  get displayData(): any[] {
-    // Hafızadaki max 6 kişilik listeden, kullanıcının ekranda seçtiği kadarını kesip gösterir.
-    // Eğer gridCount 1 ise sadece en yeni 1 kişiyi, 6 ise hepsini gösterir.
-    return this.data.slice(0, this.gridCount);
   }
 
   getGridClass(): string {

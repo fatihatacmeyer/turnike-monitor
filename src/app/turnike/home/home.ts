@@ -16,7 +16,7 @@ export class HomeComponent implements OnInit {
   selectedGrid: number = 1;
   gridCount = [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }, { id: 5 }, { id: 6 }];
   terminals: any[] = [];
-  selectedTerminal: any = null;
+  selectedTerminals: any[] = [null];
 
   constructor(
     private authService: AuthService,
@@ -44,7 +44,13 @@ export class HomeComponent implements OnInit {
         this.terminals = Array.isArray(apiResponse) ? apiResponse : [];
         
         if (this.terminals.length > 0) {
-          this.selectedTerminal = this.terminals[0];
+          // Akıllı İlk Yükleme: Terminal sayısı kadar grid seç (Maksimum 6)
+          this.selectedGrid = Math.min(this.terminals.length, 6);
+          this.selectedTerminals = [];
+          
+          for (let i = 0; i < this.selectedGrid; i++) {
+            this.selectedTerminals.push(this.terminals[i]);
+          }
         }
 
         // ÇÖZÜM: Angular'a verinin geldiğini ve arayüzü anında çizmesi gerektiğini bildiriyoruz.
@@ -56,16 +62,26 @@ export class HomeComponent implements OnInit {
     });
   }
 
+  onGridChange() {
+    const newSelections = [];
+    for(let i = 0; i < this.selectedGrid; i++) {
+        // Eğer önceden seçili bir değer varsa onu koru, yoksa sıradaki terminali ata
+        newSelections.push(this.selectedTerminals[i] || (this.terminals.length > 0 ? this.terminals[i % this.terminals.length] : null));
+    }
+    this.selectedTerminals = newSelections;
+  }
+
+  getGridIndices() {
+    return Array.from({length: this.selectedGrid}, (_, i) => i);
+  }
+
   goToTurnike() {
-    if (!this.selectedTerminal) {
+    if (this.selectedTerminals.some(t => t === null)) {
       return;
     }
     
     this.helper.selectedGridCount = this.selectedGrid;
-    // Farklı API versiyonlarında Id veya TerminalID dönebilir, ikisini de yakalıyoruz
-    this.helper.selectedTerminalId = this.selectedTerminal.Id || this.selectedTerminal.TerminalID;
-    this.helper.selectedTerminalAd = this.selectedTerminal.Ad || this.selectedTerminal.TerminalAdi;
-    this.helper.selectedTerminal = this.selectedTerminal;
+    this.helper.selectedTerminals = [...this.selectedTerminals];
     
     this.router.navigate(['/turnike']);
   }

@@ -20,7 +20,9 @@ export class MockApiInterceptor implements HttpInterceptor {
     { Id: 1, Ad: 'Terminal-1 (Giriş)' },
     { Id: 2, Ad: 'Terminal-2 (Çıkış)' },
     { Id: 3, Ad: 'Terminal-3 (Personel)' },
-    { Id: 4, Ad: 'Terminal-4 (Ziyaretçi)' }
+    { Id: 4, Ad: 'Terminal-4 (Ziyaretçi)' },
+    { Id: 5, Ad: 'Terminal-5 (Muhasebe)' },
+    { Id: 6, Ad: 'Terminal-6 (İK)' }
   ];
 
   private staffList = [
