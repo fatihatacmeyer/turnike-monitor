@@ -1,9 +1,11 @@
 @use 'variables' as *;
 
 .home-container {
-  min-height: 100vh;
+  height: 100vh; /* DEĞİŞTİRİLDİ: min-height yerine height kullanıyoruz ki ekranı aşamasın */
   background: $bg-body;
-  padding: 20px;
+  overflow-y: auto; /* İçerik ekranı aşarsa burada kaydırma çubuğu çıkacak */
+  overflow-x: hidden;
+  box-sizing: border-box; /* EKLENDİ: 20px padding'in ekran dışına taşmasını önlemek için */
 }
 
 .home-logo{
@@ -28,6 +30,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
+    padding-left: 20px;
   }
 
   img {

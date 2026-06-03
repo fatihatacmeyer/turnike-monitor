@@ -23,7 +23,7 @@ export class HomeComponent implements OnInit {
     private router: Router,
     public helper: HelperService,
     private turnikeService: TurnikeService,
-    private changeDetector: ChangeDetectorRef // Ekranı anında güncellemek için eklendi
+    private changeDetector: ChangeDetectorRef 
   ) {}
 
   ngOnInit(): void {
@@ -33,7 +33,6 @@ export class HomeComponent implements OnInit {
   loadTerminals() {
     const userToken = this.helper.userLoginModel?.tokenid;
     
-    // Güvenlik: Eğer token uçtuysa direkt login'e at
     if (!userToken) {
       this.router.navigate(['/login']);
       return;
@@ -44,16 +43,29 @@ export class HomeComponent implements OnInit {
         this.terminals = Array.isArray(apiResponse) ? apiResponse : [];
         
         if (this.terminals.length > 0) {
-          // Akıllı İlk Yükleme: Terminal sayısı kadar grid seç (Maksimum 6)
-          this.selectedGrid = Math.min(this.terminals.length, 6);
-          this.selectedTerminals = [];
-          
-          for (let i = 0; i < this.selectedGrid; i++) {
-            this.selectedTerminals.push(this.terminals[i]);
+          const savedGrid = localStorage.getItem('savedGridCount');
+          const savedTerminals = localStorage.getItem('savedTerminals');
+
+          if (savedGrid && savedTerminals) {
+            // Hafızada kullanıcının eski seçimi varsa onu getir
+            this.selectedGrid = parseInt(savedGrid, 10);
+            const savedTerminalIds = JSON.parse(savedTerminals);
+            
+            this.selectedTerminals = [];
+            for (let i = 0; i < this.selectedGrid; i++) {
+              const foundTerminal = this.terminals.find(t => 
+                (t.Id || t.TerminalID) === savedTerminalIds[i]
+              );
+              this.selectedTerminals.push(foundTerminal || null);
+            }
+          } else {
+            // Otomatik (akıllı) seçimi kaldırdık. 
+            // Varsayılan olarak 1 grid ve içi boş (null) gelecek, kullanıcı seçecek.
+            this.selectedGrid = 1;
+            this.selectedTerminals = [null];
           }
         }
 
-        // ÇÖZÜM: Angular'a verinin geldiğini ve arayüzü anında çizmesi gerektiğini bildiriyoruz.
         this.changeDetector.detectChanges();
       },
       error: (error) => {
@@ -65,8 +77,8 @@ export class HomeComponent implements OnInit {
   onGridChange() {
     const newSelections = [];
     for(let i = 0; i < this.selectedGrid; i++) {
-        // Eğer önceden seçili bir değer varsa onu koru, yoksa sıradaki terminali ata
-        newSelections.push(this.selectedTerminals[i] || (this.terminals.length > 0 ? this.terminals[i % this.terminals.length] : null));
+        // Yeni bir ekran eklendiğinde otomatik doldurmayı kaldırdık, null (boş) atıyoruz.
+        newSelections.push(this.selectedTerminals[i] || null);
     }
     this.selectedTerminals = newSelections;
   }
@@ -76,12 +88,19 @@ export class HomeComponent implements OnInit {
   }
 
   goToTurnike() {
+    // Tüm alanların seçili olup olmadığını kontrol et
     if (this.selectedTerminals.some(t => t === null)) {
+      alert("Lütfen izlemek için tüm ekranlara bir terminal seçin.");
       return;
     }
     
     this.helper.selectedGridCount = this.selectedGrid;
     this.helper.selectedTerminals = [...this.selectedTerminals];
+    
+    localStorage.setItem('savedGridCount', this.selectedGrid.toString());
+    
+    const terminalIds = this.selectedTerminals.map(t => t.Id || t.TerminalID);
+    localStorage.setItem('savedTerminals', JSON.stringify(terminalIds));
     
     this.router.navigate(['/turnike']);
   }
