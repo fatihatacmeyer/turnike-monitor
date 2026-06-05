@@ -30,9 +30,9 @@
             @if (gridCount <= 6) {
               <div class="person-firma">{{ person.FirmaAdi }}</div>
             }
-            <!-- @if (gridCount <= 6) {
-              <div class="person-position">{{ person.Pozisyon || '' }}</div>
-            } -->
+            @if (gridCount<=6){
+              <div class="person-firma">{{ person.BolumAdi }}</div>
+            }
             <div class="person-time">{{ person.GecisZamani | date: (gridCount <= 2 ? 'dd.MM.yyyy - HH:mm:ss' : 'HH:mm:ss') }}</div>
             @if (gridCount <= 6) {
               <div class="person-terminal">{{ person._TerminalName || person.TerminalAdi }}</div>
