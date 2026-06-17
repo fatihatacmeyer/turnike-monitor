@@ -77,7 +77,6 @@ export class DisplayComponent implements OnInit, OnDestroy {
                   
                   const latestRecord = sortedData[0];
                   
-                  latestRecord.FotoImage = latestRecord.FotoImage || `https://i.pravatar.cc/500?u=${latestRecord.SicilNo || 'default'}`;
                   latestRecord._TerminalName = this.terminals[index].Ad || this.terminals[index].TerminalAdi;
                   
                   this.displayData[index] = latestRecord;
