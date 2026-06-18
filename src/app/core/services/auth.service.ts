@@ -224,7 +224,8 @@ export class AuthService {
   }
 
   login(email: string, password: string): Observable<any> {
-    const apiUrl = `${this.config.apiUrl}/Login`;
+    // TrendyolTurnike projesindeki orijinal login endpoint
+    const apiUrl = `${this.config.apiUrl}/MonitorLogin`;
     const nameParam = `LoginName=${email}&Password=${password}&ldap=0`;
     
     const params = new HttpParams().set('Name', nameParam);

@@ -19,13 +19,9 @@ export class TurnikeService {
   getTurnike(token: string, terminalId: number): Observable<any> {
     const apiUrl = `${this.config.apiUrl}/Dynamic`;
 
-    const userId = this.helper.userLoginModel.xsicilid || this.helper.userLoginModel.id || '';
     
-    
-    // Eski lastpass uygulamasındaki raw string formatı birebir aynı
-    // const nameParam = `islemtipi=p&tokenid=${token}&tarihbas=&tarihbit=&sicilno=&bolum#cbo_bolum=&point=lastpass&terminalid=${terminalId}`;
-    const nameParam = `islemtipi=p&tokenid=${token}&tarihbas=&tarihbit=&sicilno=${userId}&bolum#cbo_bolum=&point=lastpass&terminalid=${terminalId}`;
-    // HttpParams kullanarak Angular'ın stringi URL-Encode yapmasını (eski sistem gibi) sağlıyoruz
+    // TrendyolTurnike projesindeki orijinal format
+    const nameParam = `tokenid=${token}&point=lastpass&islemtipi=pp&terminalgrubu=${terminalId}`;
     const params = new HttpParams().set('Name', nameParam);
     const headers = new HttpHeaders().set('Accept', 'application/json');
     
@@ -34,9 +30,8 @@ export class TurnikeService {
 
   getTerminal(token: string): Observable<any> {
     const apiUrl = `${this.config.apiUrl}/Dynamic`;
-    const userId = this.helper.userLoginModel.xsicilid || this.helper.userLoginModel.id || '';
-    // const nameParam = `islemtipi=t&tokenid=${token}&tarihbas=&tarihbit=&sicilno=&bolum#cbo_bolum=&point=lastpass`;
-    const nameParam = `islemtipi=t&tokenid=${token}&tarihbas=&tarihbit=&sicilno=${userId}&bolum#cbo_bolum=&point=lastpass`;
+    // TrendyolTurnike projesindeki orijinal format
+    const nameParam = `tokenid=${token}&point=lastpass&islemtipi=tl`;
     const params = new HttpParams().set('Name', nameParam);
     const headers = new HttpHeaders().set('Accept', 'application/json');
     

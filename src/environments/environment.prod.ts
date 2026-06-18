@@ -4,5 +4,5 @@ export const environment = {
   USERDATA_KEY: 'authf649fc9a5f55',
   isMockEnabled: false,
   isAuthEnabled: true,
-  apiUrl: 'https://efm-pdksapi.tuprag.com/Api'
+  apiUrl: 'https://efm-pdksapi.tuprag.com/api'
 };
