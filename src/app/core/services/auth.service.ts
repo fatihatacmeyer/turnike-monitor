@@ -180,7 +180,7 @@
 
 
 import { Injectable, Inject } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
@@ -223,24 +223,55 @@ export class AuthService {
     }
   }
 
-  login(email: string, password: string): Observable<any> {
-    // TrendyolTurnike projesindeki orijinal login endpoint
-    const apiUrl = `${this.config.apiUrl}/MonitorLogin`;
+  // login(email: string, password: string): Observable<any> {
+  //   // TrendyolTurnike projesindeki orijinal login endpoint
+  //   const apiUrl = `${this.config.apiUrl}/MonitorLogin`;
+  //   const nameParam = `LoginName=${email}&Password=${password}&ldap=0`;
+    
+  //   const params = new HttpParams().set('Name', nameParam);
+
+  //   return this.http.get<any>(apiUrl, { params }).pipe(
+  //     map(response => {
+  //       const user = Array.isArray(response) ? response[0] : response;
+        
+  //       if (user && (user.islemsonuc == "1" || user.islemsonuc == 1)) {
+  //         // this.setAuthToLocalStorage(user); // İleride açmak isterseniz yorumu kaldırın
+  //         this.helper.userLoginModel = user;
+  //         this.currentUserSubject.next(user);
+  //         return user;
+  //       } else {
+  //         throw new Error('Invalid credentials');
+  //       }
+  //     }),
+  //     catchError(error => {
+  //       return throwError(() => error);
+  //     })
+  //   );
+  // }
+
+login(email: string, password: string): Observable<any> {
+    // Adresimiz doğru: /Login
+    const apiUrl = `${this.config.apiUrl}/Login`;
     const nameParam = `LoginName=${email}&Password=${password}&ldap=0`;
     
-    const params = new HttpParams().set('Name', nameParam);
+    // Veriyi URL'de değil, POST'un gövdesinde (Body) göndermek için HttpParams kullanıyoruz
+    const body = new HttpParams().set('Name', nameParam);
+    
+    // Tarayıcının gereksiz OPTIONS (Ön uçuş) isteği atmasını engellemek için Header ekliyoruz
+    const headers = new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded');
 
-    return this.http.get<any>(apiUrl, { params }).pipe(
+    // GET yerine POST kullanıyoruz ve body'yi string olarak gönderiyoruz
+    return this.http.post<any>(apiUrl, body.toString(), { headers }).pipe(
       map(response => {
         const user = Array.isArray(response) ? response[0] : response;
         
         if (user && (user.islemsonuc == "1" || user.islemsonuc == 1)) {
-          // this.setAuthToLocalStorage(user); // İleride açmak isterseniz yorumu kaldırın
+          // this.setAuthToLocalStorage(user); // İhtiyacınıza göre açabilirsiniz
           this.helper.userLoginModel = user;
           this.currentUserSubject.next(user);
           return user;
         } else {
-          throw new Error('Invalid credentials');
+          throw new Error('Kullanıcı adı veya şifre hatalı');
         }
       }),
       catchError(error => {

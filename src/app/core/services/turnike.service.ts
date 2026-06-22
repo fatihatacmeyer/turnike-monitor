@@ -20,7 +20,6 @@ export class TurnikeService {
     const apiUrl = `${this.config.apiUrl}/Dynamic`;
 
     
-    // TrendyolTurnike projesindeki orijinal format
     const nameParam = `tokenid=${token}&point=lastpass&islemtipi=pp&terminalgrubu=${terminalId}`;
     const params = new HttpParams().set('Name', nameParam);
     const headers = new HttpHeaders().set('Accept', 'application/json');
@@ -30,7 +29,6 @@ export class TurnikeService {
 
   getTerminal(token: string): Observable<any> {
     const apiUrl = `${this.config.apiUrl}/Dynamic`;
-    // TrendyolTurnike projesindeki orijinal format
     const nameParam = `tokenid=${token}&point=lastpass&islemtipi=tl`;
     const params = new HttpParams().set('Name', nameParam);
     const headers = new HttpHeaders().set('Accept', 'application/json');
