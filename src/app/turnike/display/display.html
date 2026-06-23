@@ -9,9 +9,16 @@
         @if (person) {
           <div class="person-photo">
             @if (person.FotoImage) {
-              <img [src]="person.FotoImage.startsWith('http') ? person.FotoImage : 'data:image/jpg;base64,' + person.FotoImage" class="photo-img">
+              <img
+                [src]="
+                  person.FotoImage.startsWith('http')
+                    ? person.FotoImage
+                    : 'data:image/jpg;base64,' + person.FotoImage
+                "
+                class="photo-img"
+              />
             } @else {
-              <img src="assets/media/logos/person.jpeg" class="photo-img">
+              <img src="assets/media/logos/person.jpeg" class="photo-img" />
             }
           </div>
           <div class="person-info" [class.full-detail]="gridCount <= 6">
@@ -26,18 +33,38 @@
             @if (gridCount <= 6) {
               <div class="person-firma">{{ person.FirmaAdi }}</div>
             }
-            @if (gridCount<=6){
-              <div class="person-dept" [title]="person.BolumAdi">{{ person.BolumAdi }}</div> 
+            @if (gridCount <= 6) {
+              <div class="person-dept" [title]="person.BolumAdi">{{ person.BolumAdi }}</div>
             }
-            <div class="person-time">{{ person.GecisZamani | date: (gridCount <= 2 ? 'dd.MM.yyyy - HH:mm:ss' : 'HH:mm:ss') }}</div>
+            <div class="person-time">
+              {{
+                person.GecisZamani | date: (gridCount <= 2 ? 'dd.MM.yyyy - HH:mm:ss' : 'HH:mm:ss')
+              }}
+            </div>
             @if (gridCount <= 6) {
               <div class="person-terminal">{{ person._TerminalName || person.TerminalAdi }}</div>
             }
           </div>
         } @else {
-          <div class="empty-state-card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; padding: 20px;">
-            <p class="empty-text" style="color: #ffffff; font-size: 1.2rem; margin-bottom: 8px; font-weight: 500;">{{ terminals[$index]?.Ad || terminals[$index]?.TerminalAdi }}</p>
-            <p class="empty-subtext" style="color: #94a3b8; font-size: 0.9rem;">Bekleniyor...</p>
+          <div
+            class="empty-state-card"
+            style="
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              height: 100%;
+              text-align: center;
+              padding: 20px;
+            "
+          >
+            <p
+              class="empty-text"
+              style="color: #ffffff; font-size: 1.2rem; margin-bottom: 8px; font-weight: 500"
+            >
+              {{ terminals[$index]?.Ad || terminals[$index]?.TerminalAdi }}
+            </p>
+            <p class="empty-subtext" style="color: #94a3b8; font-size: 0.9rem">Bekleniyor...</p>
           </div>
         }
       </div>
