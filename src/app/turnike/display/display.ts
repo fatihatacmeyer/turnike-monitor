@@ -3,7 +3,7 @@ import { DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { HelperService } from '../../core/services/helper.service';
 import { TurnikeService } from '../../core/services/turnike.service';
-import { Subscription, timer, forkJoin, of } from 'rxjs';
+import { Subscription, timer, of } from 'rxjs';
 import { switchMap, catchError } from 'rxjs/operators';
 
 @Component({
@@ -17,7 +17,6 @@ export class DisplayComponent implements OnInit, OnDestroy {
   displayData: any[] = [];
   gridCount: number = 1;
   private pollingSubscription: Subscription | null = null;
-  terminals: any[] = [];
 
   constructor(
     public helper: HelperService,
@@ -27,17 +26,13 @@ export class DisplayComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    if (!this.helper.selectedTerminals || this.helper.selectedTerminals.length === 0) {
+    if (!this.helper.selectedTerminalId) {
       this.router.navigate(['/home']);
       return;
     }
 
     this.gridCount = Number(this.helper.selectedGridCount) || 1;
-    this.terminals = this.helper.selectedTerminals;
-    
-    // Initialize displayData with empty records or nulls
     this.displayData = Array(this.gridCount).fill(null);
-
     this.startPolling();
   }
 
@@ -45,46 +40,45 @@ export class DisplayComponent implements OnInit, OnDestroy {
     this.pollingSubscription = timer(0, 2000).pipe(
       switchMap(() => {
         const userToken = this.helper.userLoginModel?.tokenid;
-        
-        if (!userToken || this.terminals.length === 0) return of([]);
+        const terminalId = this.helper.selectedTerminalId;
 
-        const requests = this.terminals.map(terminal => {
-            const terminalId = terminal.Id || terminal.TerminalID;
-            return this.turnikeService.getTurnike(userToken, terminalId).pipe(
-                catchError(apiError => {
-                    console.error(`API Error for terminal ${terminalId}:`, apiError);
-                    return of([]);
-                })
-            );
-        });
+        if (!userToken || !terminalId) return of([]);
 
-        return forkJoin(requests);
+        const islemno = this.helper.userLoginModel?.islemno || '';
+        return this.turnikeService.getTurnike(userToken, terminalId, islemno).pipe(
+          catchError(apiError => {
+            console.error('API Error:', apiError);
+            return of([]);
+          })
+        );
       }),
       catchError(pollingError => {
         console.error('Polling Error:', pollingError);
         return of([]);
       })
-    ).subscribe((responses: any[]) => {
-      
-      if (responses && responses.length > 0) {
-          responses.forEach((apiResponse, index) => {
-              if (Array.isArray(apiResponse) && apiResponse.length > 0) {
-                  const sortedData = [...apiResponse].sort((a, b) => {
-                    const timeA = new Date(a.GecisZamani).getTime();
-                    const timeB = new Date(b.GecisZamani).getTime();
-                    return timeB - timeA;
-                  });
-                  
-                  const latestRecord = sortedData[0];
-                  
-                  latestRecord._TerminalName = this.terminals[index].Ad || this.terminals[index].TerminalAdi;
-                  
-                  this.displayData[index] = latestRecord;
-              }
-          });
+    ).subscribe((response: any) => {
+      if (Array.isArray(response) && response.length > 0) {
+        const sortedData = [...response].sort((a, b) => {
+          const timeA = new Date(a.GecisZamani).getTime();
+          const timeB = new Date(b.GecisZamani).getTime();
+          return timeB - timeA;
+        });
 
-          this.changeDetector.detectChanges();
+        const terminalAd = this.helper.selectedTerminalAd || sortedData[0]?.TerminalAdi || '';
+
+        this.displayData = sortedData.slice(0, this.gridCount).map(record => ({
+          ...record,
+          _TerminalName: terminalAd
+        }));
+
+        while (this.displayData.length < this.gridCount) {
+          this.displayData.push(null);
+        }
+      } else {
+        this.displayData = Array(this.gridCount).fill(null);
       }
+
+      this.changeDetector.detectChanges();
     });
   }
 

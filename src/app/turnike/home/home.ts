@@ -16,7 +16,7 @@ export class HomeComponent implements OnInit {
   selectedGrid: number = 1;
   gridCount = [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }, { id: 5 }, { id: 6 }];
   terminals: any[] = [];
-  selectedTerminals: any[] = [null];
+  selectedTerminal: any = null;
 
   constructor(
     private authService: AuthService,
@@ -44,25 +44,19 @@ export class HomeComponent implements OnInit {
         
         if (this.terminals.length > 0) {
           const savedGrid = localStorage.getItem('savedGridCount');
-          const savedTerminals = localStorage.getItem('savedTerminals');
+          const savedTerminalId = localStorage.getItem('savedTerminalId');
 
-          if (savedGrid && savedTerminals) {
-            // Hafızada kullanıcının eski seçimi varsa onu getir
+          if (savedGrid) {
             this.selectedGrid = parseInt(savedGrid, 10);
-            const savedTerminalIds = JSON.parse(savedTerminals);
-            
-            this.selectedTerminals = [];
-            for (let i = 0; i < this.selectedGrid; i++) {
-              const foundTerminal = this.terminals.find(t => 
-                (t.Id || t.TerminalID) === savedTerminalIds[i]
-              );
-              this.selectedTerminals.push(foundTerminal || null);
+          }
+
+          if (savedTerminalId) {
+            const found = this.terminals.find(t => 
+              (t.Id || t.TerminalID) == parseInt(savedTerminalId, 10)
+            );
+            if (found) {
+              this.selectedTerminal = found;
             }
-          } else {
-            // Otomatik (akıllı) seçimi kaldırdık. 
-            // Varsayılan olarak 1 grid ve içi boş (null) gelecek, kullanıcı seçecek.
-            this.selectedGrid = 1;
-            this.selectedTerminals = [null];
           }
         }
 
@@ -74,34 +68,21 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  onGridChange() {
-    const newSelections = [];
-    for(let i = 0; i < this.selectedGrid; i++) {
-        // Yeni bir ekran eklendiğinde otomatik doldurmayı kaldırdık, null (boş) atıyoruz.
-        newSelections.push(this.selectedTerminals[i] || null);
-    }
-    this.selectedTerminals = newSelections;
-  }
-
-  getGridIndices() {
-    return Array.from({length: this.selectedGrid}, (_, i) => i);
-  }
-
   goToTurnike() {
-    // Tüm alanların seçili olup olmadığını kontrol et
-    if (this.selectedTerminals.some(t => t === null)) {
-      alert("Lütfen izlemek için tüm ekranlara bir terminal seçin.");
+    if (!this.selectedTerminal) {
+      alert('Lütfen bir cihaz seçin.');
       return;
     }
-    
+
     this.helper.selectedGridCount = this.selectedGrid;
-    this.helper.selectedTerminals = [...this.selectedTerminals];
-    
+    this.helper.selectedTerminalId = this.selectedTerminal.Id || this.selectedTerminal.TerminalID;
+    this.helper.selectedTerminalAd = this.selectedTerminal.Ad || this.selectedTerminal.TerminalAdi;
+
     localStorage.setItem('savedGridCount', this.selectedGrid.toString());
-    
-    const terminalIds = this.selectedTerminals.map(t => t.Id || t.TerminalID);
-    localStorage.setItem('savedTerminals', JSON.stringify(terminalIds));
-    
+    if (this.helper.selectedTerminalId) {
+      localStorage.setItem('savedTerminalId', String(this.helper.selectedTerminalId));
+    }
+
     this.router.navigate(['/turnike']);
   }
 
