@@ -2,7 +2,7 @@
     "apiUrl": "http://192.168.1.18:8080/Api",
     "appVersion": "v1-turnike-monitor",
     "USERDATA_KEY": "authf649fc9a5f55",
-    "isMockEnabled": false,
+    "isMockEnabled": true,
     "isAuthEnabled": true,
     "production": false
 }
