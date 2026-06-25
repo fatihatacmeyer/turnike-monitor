@@ -15,9 +15,9 @@ export class TurnikeService {
     @Inject(APP_CONFIG) private config: AppConfig,
   ) {}
 
-  getTurnike(token: string, terminalId: number, islemno: string = ''): Observable<any> {
+  getTurnike(token: string, terminalId: number): Observable<any> {
     const apiUrl = `${this.config.apiUrl}/Dynamic`;
-    const nameParam = `tokenid=${token}&point=lastpass&islemtipi=pp&islemno=${islemno}&terminalgrubu=${terminalId}`;
+    const nameParam = `tokenid=${token}&point=lastpass&islemtipi=pp&terminalgrubu=${terminalId}`;
     const params = new HttpParams().set('Name', nameParam);
 
     return this.http.get<any>(apiUrl, { params }).pipe(

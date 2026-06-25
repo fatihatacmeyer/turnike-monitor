@@ -11,7 +11,7 @@ import { switchMap, catchError } from 'rxjs/operators';
   standalone: true,
   imports: [DatePipe],
   templateUrl: './display.html',
-  styleUrl: './display.scss'
+  styleUrl: './display.scss',
 })
 export class DisplayComponent implements OnInit, OnDestroy {
   displayData: any[] = [];
@@ -22,7 +22,7 @@ export class DisplayComponent implements OnInit, OnDestroy {
     public helper: HelperService,
     private turnikeService: TurnikeService,
     private router: Router,
-    private changeDetector: ChangeDetectorRef
+    private changeDetector: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -37,49 +37,50 @@ export class DisplayComponent implements OnInit, OnDestroy {
   }
 
   private startPolling(): void {
-    this.pollingSubscription = timer(0, 2000).pipe(
-      switchMap(() => {
-        const userToken = this.helper.userLoginModel?.tokenid;
-        const terminalId = this.helper.selectedTerminalId;
+    this.pollingSubscription = timer(0, 2000)
+      .pipe(
+        switchMap(() => {
+          const userToken = this.helper.userLoginModel?.tokenid;
+          const terminalId = this.helper.selectedTerminalId;
 
-        if (!userToken || !terminalId) return of([]);
+          if (!userToken || !terminalId) return of([]);
 
-        const islemno = this.helper.userLoginModel?.islemno || '';
-        return this.turnikeService.getTurnike(userToken, terminalId, islemno).pipe(
-          catchError(apiError => {
-            console.error('API Error:', apiError);
-            return of([]);
-          })
-        );
-      }),
-      catchError(pollingError => {
-        console.error('Polling Error:', pollingError);
-        return of([]);
-      })
-    ).subscribe((response: any) => {
-      if (Array.isArray(response) && response.length > 0) {
-        const sortedData = [...response].sort((a, b) => {
-          const timeA = new Date(a.GecisZamani).getTime();
-          const timeB = new Date(b.GecisZamani).getTime();
-          return timeB - timeA;
-        });
+          return this.turnikeService.getTurnike(userToken, terminalId).pipe(
+            catchError((apiError) => {
+              console.error('API Error:', apiError);
+              return of([]);
+            }),
+          );
+        }),
+        catchError((pollingError) => {
+          console.error('Polling Error:', pollingError);
+          return of([]);
+        }),
+      )
+      .subscribe((response: any) => {
+        if (Array.isArray(response) && response.length > 0) {
+          const sortedData = [...response].sort((a, b) => {
+            const timeA = new Date(a.GecisZamani).getTime();
+            const timeB = new Date(b.GecisZamani).getTime();
+            return timeB - timeA;
+          });
 
-        const terminalAd = this.helper.selectedTerminalAd || sortedData[0]?.TerminalAdi || '';
+          const terminalAd = this.helper.selectedTerminalAd || sortedData[0]?.TerminalAdi || '';
 
-        this.displayData = sortedData.slice(0, this.gridCount).map(record => ({
-          ...record,
-          _TerminalName: terminalAd
-        }));
+          this.displayData = sortedData.slice(0, this.gridCount).map((record) => ({
+            ...record,
+            //_TerminalName: terminalAd
+          }));
 
-        while (this.displayData.length < this.gridCount) {
-          this.displayData.push(null);
+          while (this.displayData.length < this.gridCount) {
+            this.displayData.push(null);
+          }
+        } else {
+          this.displayData = Array(this.gridCount).fill(null);
         }
-      } else {
-        this.displayData = Array(this.gridCount).fill(null);
-      }
 
-      this.changeDetector.detectChanges();
-    });
+        this.changeDetector.detectChanges();
+      });
   }
 
   ngOnDestroy(): void {
