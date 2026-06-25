@@ -22,20 +22,7 @@
             }
           </div>
           <div class="person-info" [class.full-detail]="gridCount <= 6">
-            <!-- @if (gridCount <= 6) {
-              <div class="person-message" [class.person-message-success]="person.Gecis == 1" [class.person-message-error]="person.Gecis == 2">{{ (person.Mesaj === 'OK' || !person.Mesaj) ? 'Giriş Başarılı' : person.Mesaj }}</div>
-            } -->
             <div class="person-name">{{ person.AdSoyad || 'Bilinmiyor' }}</div>
-            @if (gridCount <= 6) {
-              <div class="person-sicil">{{ person.SicilNo }}</div>
-            }
-            <!-- <div class="person-dept">{{ person.BolumAdi || person.Departman || '' }}</div> -->
-            @if (gridCount <= 6) {
-              <div class="person-firma">{{ person.FirmaAdi }}</div>
-            }
-            @if (gridCount <= 6) {
-              <div class="person-dept" [title]="person.BolumAdi">{{ person.BolumAdi }}</div>
-            }
             <div class="person-time">
               {{
                 person.GecisZamani | date: (gridCount <= 2 ? 'dd.MM.yyyy - HH:mm:ss' : 'HH:mm:ss')
