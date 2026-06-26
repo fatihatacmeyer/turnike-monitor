@@ -31,7 +31,11 @@ export class MockApiInterceptor implements HttpInterceptor {
     { fullName: 'Mehmet Kaya', department: 'Muhasebe', position: 'Muhasebe Müdürü' },
     { fullName: 'Fatma Şahin', department: 'Satış', position: 'Satış Temsilcisi' },
     { fullName: 'Ali Öztürk', department: 'Lojistik', position: 'Depo Sorumlusu' },
-    { fullName: 'Zeynep Çelik', department: 'Pazarlama', position: 'Pazarlama Uzmanı' }
+    { fullName: 'Zeynep Çelik', department: 'Pazarlama', position: 'Pazarlama Uzmanı' },
+    { fullName: 'Mustafa Polat', department: 'Üretim', position: 'Vardiya Amiri' },
+    { fullName: 'Elif Yıldız', department: 'Kalite', position: 'Kalite Kontrol' },
+    { fullName: 'Hakan Aydın', department: 'Bakım', position: 'Bakım Teknisyeni' },
+    { fullName: 'Esra Kurt', department: 'İdari İşler', position: 'İdari İşler Sorumlusu' }
   ];
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
