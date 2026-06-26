@@ -26,10 +26,24 @@ export class AuthService {
     let storedUser = this.getAuthFromLocalStorage();
     if (!storedUser && !this.config.isAuthEnabled) {
       storedUser = {
-        id: 1, loginname: 'ekran', extloginname: '', access: 'full', accessmenu: true,
-        admin: false, bolum: 1, customerName: 'Bypass Kullanıcı', customerCode: 'BYPASS',
-        islemno: '1', kademe: 1, xsicilid: 1, tokenid: 'bypass-token',
-        yetki: 1, gorev: 1, terminalgrubu: 0, terminalgroup: 0, islemsonuc: 1
+        id: 1,
+        loginname: 'ekran',
+        extloginname: '',
+        access: 'full',
+        accessmenu: true,
+        admin: false,
+        bolum: 1,
+        customerName: 'Bypass Kullanıcı',
+        customerCode: 'BYPASS',
+        islemno: '1',
+        kademe: 1,
+        xsicilid: 1,
+        tokenid: 'bypass-token',
+        yetki: 1,
+        gorev: 1,
+        terminalgrubu: 0,
+        terminalgroup: 0,
+        islemsonuc: 1,
       };
       this.setAuthToLocalStorage(storedUser);
     }
@@ -42,10 +56,8 @@ export class AuthService {
   login(email: string, password: string, securityCode: string = ''): Observable<any> {
     const apiUrl = `${this.config.apiUrl}/Login`;
 
-    // 1. Parametreleri birleştir
     const loginParamString = `LoginName=${encodeURIComponent(email)}&Password=${encodeURIComponent(password)}&ldap=0&SecurityCode=${securityCode}`;
 
-    // 2. Dinamik Tarih Bazlı Anahtar (Key) Üretimi
     const today = new Date();
     const mm = today.getMonth() + 1;
     const dd = today.getDate();
@@ -57,14 +69,13 @@ export class AuthService {
     const key = CryptoJS.enc.Utf8.parse(keyStr);
     const iv = CryptoJS.enc.Utf8.parse(keyStr);
 
-    // 3. AES-CBC Şifreleme
-    const encryptedParam = CryptoJS.AES.encrypt(
-      CryptoJS.enc.Utf8.parse(loginParamString),
-      key,
-      { keySize: 128 / 8, iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 },
-    );
+    const encryptedParam = CryptoJS.AES.encrypt(CryptoJS.enc.Utf8.parse(loginParamString), key, {
+      keySize: 128 / 8,
+      iv,
+      mode: CryptoJS.mode.CBC,
+      padding: CryptoJS.pad.Pkcs7,
+    });
 
-    // 4. API'ye gönderilecek payload
     const payload = { param: encryptedParam.toString() };
 
     return this.http.post<any>(apiUrl, payload).pipe(
@@ -91,10 +102,23 @@ export class AuthService {
     localStorage.removeItem(authLocalStorageToken);
     this.currentUserSubject.next(null);
     this.helper.userLoginModel = {
-      customerCode: '', fullname: '', username: '', loginname: '',
-      gorev: null, yetki: null, bolum: null, kademe: null, xsicilid: null,
-      extloginname: '', customerName: '', id: null, tokenid: '',
-      islemno: '', access: '', accessmenu: true, admin: false
+      customerCode: '',
+      fullname: '',
+      username: '',
+      loginname: '',
+      gorev: null,
+      yetki: null,
+      bolum: null,
+      kademe: null,
+      xsicilid: null,
+      extloginname: '',
+      customerName: '',
+      id: null,
+      tokenid: '',
+      islemno: '',
+      access: '',
+      accessmenu: true,
+      admin: false,
     };
     this.router.navigate(['/login']);
   }
