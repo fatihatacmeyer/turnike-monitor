@@ -29,12 +29,12 @@
             @if (gridCount <= 6) {
               <div class="person-sicil">{{ person.SicilNo }}</div>
             }
-            <!-- <div class="person-dept">{{ person.BolumAdi || person.Departman || '' }}</div> -->
+            <!-- person.BolumAdi kaldırıldı, yerine person.Pozisyon (Görev) kullanılıyor -->
             @if (gridCount <= 6) {
               <div class="person-firma">{{ person.FirmaAdi }}</div>
             }
             @if (gridCount <= 6) {
-              <div class="person-dept" [title]="person.Pozisyon">{{ person.Pozisyon }}</div>
+              <div class="person-gorev" [title]="person.Pozisyon">{{ person.Pozisyon }}</div>
             }
             <div class="person-time">
               {{

@@ -2,7 +2,7 @@
     "apiUrl": "https://meyerapi.nakkasmadencilik.com:443/api",
     "appVersion": "v1-turnike-monitor",
     "USERDATA_KEY": "authf649fc9a5f55",
-    "isMockEnabled": true,
-    "isAuthEnabled": false,
+    "isMockEnabled": false,
+    "isAuthEnabled": true,
     "production": false
 }
