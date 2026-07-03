@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { DatePipe, NgClass } from '@angular/common';
 import { Router } from '@angular/router';
 import { HelperService } from '../../core/services/helper.service';
 import { TurnikeService } from '../../core/services/turnike.service';
@@ -9,7 +9,7 @@ import { switchMap, catchError } from 'rxjs/operators';
 @Component({
   selector: 'app-display',
   standalone: true,
-  imports: [DatePipe],
+  imports: [DatePipe, NgClass],
   templateUrl: './display.html',
   styleUrl: './display.scss',
 })

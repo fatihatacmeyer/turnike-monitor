@@ -177,12 +177,29 @@
   }
 
   .person-terminal {
-    background-color: #5e9ea0;
+    background-color: #5e9ea0; // IO_ID null veya tanımsız gelirse görünecek varsayılan renk
     color: white;
-    padding: 4px 10px;
-    font-size: 1.2vw;
+    padding: 6px 10px;
+    font-size: 1.6vw; 
+    font-weight: 800; 
     text-align: center;
     margin-top: 1vh;
+    border-radius: 4px;
+
+    /* IO_ID = 1 (GİRİŞ - ÇIKIŞ) */
+    &.terminal-giris-cikis {
+      background-color: #007bff !important; /* Mavi */
+    }
+
+    /* IO_ID = 2 (GİRİŞ) */
+    &.terminal-giris {
+      background-color: #28a745 !important; /* Yeşil */
+    }
+
+    /* IO_ID = 3 (ÇIKIŞ) */
+    &.terminal-cikis {
+      background-color: #dc3545 !important; /* Kırmızı */
+    }
   }
 
   &.full-detail {

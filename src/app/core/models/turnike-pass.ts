@@ -10,4 +10,6 @@ export interface TurnikePass {
   TerminalAdi?: string;
   FotoImage?: string;
   [key: string]: any;
+  IO_ID?: string;
+  Yon_Adi?: string;
 }

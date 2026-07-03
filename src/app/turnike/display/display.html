@@ -34,7 +34,7 @@
               <div class="person-firma">{{ person.FirmaAdi }}</div>
             }
             @if (gridCount <= 6) {
-              <div class="person-dept" [title]="person.BolumAdi">{{ person.BolumAdi }}</div>
+              <div class="person-dept" [title]="person.Pozisyon">{{ person.Pozisyon }}</div>
             }
             <div class="person-time">
               {{
@@ -42,7 +42,16 @@
               }}
             </div>
             @if (gridCount <= 6) {
-              <div class="person-terminal">{{ person._TerminalName || person.TerminalAdi }}</div>
+              <div
+                class="person-terminal"
+                [ngClass]="{
+                  'terminal-giris-cikis': person.IO_ID === 1,
+                  'terminal-giris': person.IO_ID === 2,
+                  'terminal-cikis': person.IO_ID === 3,
+                }"
+              >
+                {{ person._TerminalName || person.TerminalAdi }}
+              </div>
             }
           </div>
         } @else {
