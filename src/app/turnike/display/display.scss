@@ -309,7 +309,6 @@
   }
 }
 
-/* DEĞİŞİKLİK: 3 ve 4 artık aynı görünüm özelliklerini (font boyutları vb.) paylaşıyor */
 .grid-3,
 .grid-4 {
   .person-card {
@@ -363,12 +362,12 @@
   }
 
   .person-photo {
-    flex: 0 0 45%;
+    flex: 0 0 55%;
     background: #f8f9fa;
   }
 
   .person-info {
-    flex: 0 0 55%;
+    flex: 0 0 45%;
     padding: 1vw;
     display: flex;
     flex-direction: column;

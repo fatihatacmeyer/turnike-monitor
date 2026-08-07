@@ -3,6 +3,6 @@
     "appVersion": "v1-turnike-monitor",
     "USERDATA_KEY": "authf649fc9a5f55",
     "isMockEnabled": true,
-    "isAuthEnabled": true,
+    "isAuthEnabled": false,
     "production": false
 }
